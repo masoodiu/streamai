@@ -592,56 +592,124 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       return String(localStorage.getItem('gbhss_custom_key') || '').trim();
     }
 
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async function callDirectEngine(apiKey, payload) {
+      // Use current supported models only. The second model is a lighter fallback.
       const candidateModels = [
         'gemini-3.8-flash',
-        'gemini-flash-latest',
-        'gemini-2.0-flash'
+        'gemini-3.5-flash-lite'
       ];
 
-      let lastApiMessage = '';
+      let sawTemporaryIssue = false;
+      let sawQuotaIssue = false;
+      let sawAccessIssue = false;
+      let sawInvalidRequest = false;
 
       for (const modelName of candidateModels) {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        // Retry temporary overload/network failures with a short exponential delay.
+        for (let attempt = 0; attempt < 3; attempt++) {
+          let response;
+          let data = {};
+
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 45000);
+            try {
+              response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload),
+                  signal: controller.signal
+                }
+              );
+            } finally {
+              clearTimeout(timeoutId);
+            }
+
+            data = await response.json().catch(() => ({}));
+            const replyText = data?.candidates?.[0]?.content?.parts
+              ?.map(part => part?.text || '')
+              .join('\n')
+              .trim();
+
+            if (response.ok && replyText) {
+              return { ok: true, replyText };
+            }
+
+            const status = response.status;
+
+            if (status === 401 || status === 403) {
+              sawAccessIssue = true;
+              break;
+            }
+
+            if (status === 429) {
+              sawQuotaIssue = true;
+              // A short wait can recover a rate-limit response; if it is a hard
+              // daily/project limit, the other model may still be available.
+              if (attempt < 2) {
+                await wait(1200 * Math.pow(2, attempt));
+                continue;
+              }
+              break;
+            }
+
+            if ([408, 500, 502, 503, 504].includes(status)) {
+              sawTemporaryIssue = true;
+              if (attempt < 2) {
+                await wait(900 * Math.pow(2, attempt));
+                continue;
+              }
+              break;
+            }
+
+            if (status === 404) {
+              // Try the next supported model if this one is unavailable.
+              break;
+            }
+
+            // A request-format or safety issue will not be fixed by retrying.
+            sawInvalidRequest = true;
+            break;
+          } catch (networkError) {
+            sawTemporaryIssue = true;
+            if (attempt < 2) {
+              await wait(900 * Math.pow(2, attempt));
+              continue;
+            }
           }
-        );
-
-        const data = await response.json().catch(() => ({}));
-        const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (response.ok && replyText) {
-          return { ok: true, replyText };
         }
+      }
 
-        const rawErr = String(data?.error?.message || '').trim();
-        if (rawErr) lastApiMessage = rawErr;
-        const errReason = rawErr.toLowerCase();
+      if (sawAccessIssue) {
+        return {
+          ok: false,
+          error: 'GBHSS Shah Panjo AI Assistant is temporarily unable to access its service. Please contact Team Lead Teacher Sir Masood Ahmed Abbasi or our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
+        };
+      }
 
-        if (response.status === 429 || errReason.includes('quota') || errReason.includes('rate')) {
-          return {
-            ok: false,
-            error: 'GBHSS Shah Panjo AI Assistant free request limit is currently reached. Please wait a bit and try again, or contact Team Lead Teacher Sir Masood Ahmed Abbasi.'
-          };
-        }
+      if (sawQuotaIssue && !sawTemporaryIssue) {
+        return {
+          ok: false,
+          error: 'GBHSS Shah Panjo AI Assistant has reached its current request limit. Please wait a little and try again, or contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team.'
+        };
+      }
 
-        if (response.status === 401 || response.status === 403 || errReason.includes('api key')) {
-          return {
-            ok: false,
-            error: 'GBHSS Shah Panjo AI Assistant key or access permission needs verification. Please contact Team Lead Teacher Sir Masood Ahmed Abbasi or our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
-          };
-        }
+      if (sawInvalidRequest && !sawTemporaryIssue && !sawQuotaIssue) {
+        return {
+          ok: false,
+          error: 'Sorry, your question could not be processed right now. Please try asking it in a different way. If the issue continues, contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team.'
+        };
       }
 
       return {
         ok: false,
-        error: lastApiMessage
-          ? `GBHSS Shah Panjo AI Assistant could not return a reply right now (${lastApiMessage}). Please try again shortly or consult Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).`
-          : 'GBHSS Shah Panjo AI Assistant could not return a reply right now. Please try again shortly or consult Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
+        error: 'We are experiencing a temporary interruption. Please try again in a moment. If the issue continues, contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
       };
     }
 
@@ -685,7 +753,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       } catch (err) {
         conversationHistory.pop();
         setProcessingState(false, '● System Ready');
-        appendMessage("GBHSS Shah Panjo AI Assistant network se rabta nahi ho saka. Barah-e-karam apna internet check kar ke dobara koshish karein ya Sir Masood Ahmed Abbasi se rabta karein.", 'ai');
+        appendMessage("We are experiencing a temporary interruption. Please check the internet connection and try again. If the issue continues, contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).", 'ai');
       }
     }
 
