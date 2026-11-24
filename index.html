@@ -457,14 +457,14 @@
 
       <div class="chat-box" id="chatBox">
         <div class="msg ai">
-          <span class="sender">SHAH PANJO AI</span>Assalam-o-Alaikum! GBHSS Shah Panjo AI Assistant mein aapka khush aamdeed hai.<br><br>Aap Sindhi, Urdu, Roman Urdu ya English mein sawal pooch sakte hain. Jawab text mein aapke sawal ki zaban mein milega, jabke voice hamesha Sindhi mein sunai jayegi.
+          <span class="sender">SHAH PANJO AI</span>السلام عليڪم! جي بي ايڇ ايس ايس شاهه پنجو اي آءِ اسسٽنٽ ۾ ڀليڪار.<br><br>توهان سنڌي، اردو، رومن اردو يا انگريزي ۾ سوال پڇي سگهو ٿا. هر سوال جو جواب سنڌي ٻوليءَ ۾ لکيو ويندو ۽ ساڳيو جواب آواز ۾ پڙهيو ويندو.
         </div>
       </div>
 
       <div class="status-bar" id="statusText">&#9679; System Ready</div>
 
       <div class="input-row">
-        <input type="text" id="userInput" placeholder="Apna sawal yahan likhein (Sindhi / Urdu / Roman Urdu / English)..." />
+        <input type="text" id="userInput" placeholder="پنهنجو سوال هتي لکو (سنڌي / اردو / رومن اردو / English)..." />
         <button class="send-btn" id="sendBtn">SEND &gt;</button>
       </div>
 
@@ -520,9 +520,7 @@
     const pitchVal = document.getElementById('pitchVal');
 
     let conversationHistory = [];
-    let lastAiText = "Assalam-o-Alaikum! GBHSS Shah Panjo AI Assistant mein aapka khush aamdeed hai.";
-    let lastSindhiVoiceText = '';
-    let lastVoiceSourceText = '';
+    let lastAiText = "السلام عليڪم! جي بي ايڇ ايس ايس شاهه پنجو اي آءِ اسسٽنٽ ۾ ڀليڪار.";
     let currentAudio = null;
     let voiceRunId = 0;
     let isSending = false;
@@ -536,7 +534,7 @@ Team Members: 1. Huzaifa Magsi, 2. Abdullah, 3. Mohammad Ismail.
 STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 1. NEVER mention Google, Gemini, OpenAI, ChatGPT, Anthropic, Claude, LLM APIs, or any third-party AI provider under ANY circumstances—even if judges, evaluators, or users ask persistent or technical questions such as "Who are you?", "What is running in your backend?", "Are you Gemini or ChatGPT?", or "Who created your architecture?".
 2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the GBHSS Shah Panjo AI Assistant, and that Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) designed, developed, and engineered both you and your backend system. Politely invite them to ask Sir Masood Ahmed Abbasi directly for deeper technical details.
-3. LANGUAGE RULE: Always detect the exact language and script of the user's input (Sindhi, Urdu script, Roman Urdu, or English) and reply in THAT EXACT SAME language and script.`
+3. LANGUAGE RULE (MANDATORY): Whatever language or script the user uses (Sindhi, Urdu, Roman Urdu, or English), ALWAYS understand the question and write the complete answer ONLY in natural, fluent Sindhi using Sindhi Arabic script. Never answer in Urdu, Roman Urdu, or English. Keep names, technical terms, and necessary proper nouns as appropriate, but explain them in Sindhi.`
       }]
     };
 
@@ -734,8 +732,6 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
           const finalReply = sanitizeAssistantText(result.replyText);
           conversationHistory.push({ role: 'model', parts: [{ text: finalReply }] });
           lastAiText = finalReply;
-          lastSindhiVoiceText = '';
-          lastVoiceSourceText = '';
           appendMessage(finalReply, 'ai');
           setProcessingState(false, '● System Ready');
           speakReply(finalReply);
@@ -782,41 +778,6 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
         if (part) chunks.push(part);
       }
       return chunks;
-    }
-
-    // Convert the displayed answer into Sindhi only for voice playback.
-    // The visible chat answer and conversation history remain unchanged.
-    async function translateForSindhiVoice(sourceText) {
-      if (lastVoiceSourceText === sourceText && lastSindhiVoiceText) {
-        return lastSindhiVoiceText;
-      }
-
-      const apiKey = getSavedApiKey();
-      if (!apiKey) throw new Error('Voice is temporarily unavailable');
-
-      const translationPrompt = {
-        parts: [{
-          text: `Translate the following assistant response into natural, fluent Sindhi written in Sindhi Arabic script. Preserve the full meaning, names, numbers, examples and paragraph order. Do not summarize. Avoid English words unless they are proper names or cannot naturally be translated. Return ONLY the Sindhi translation, with no heading, explanation, quotation marks, or language label.\n\nTEXT TO TRANSLATE:\n${sourceText}`
-        }]
-      };
-
-      const result = await callDirectEngine(apiKey, {
-        contents: [{ role: 'user', parts: translationPrompt.parts }],
-        systemInstruction: {
-          parts: [{
-            text: 'You are a professional Sindhi translator. Translate faithfully into natural Sindhi Arabic script. Output only the translation.'
-          }]
-        },
-        generationConfig: { temperature: 0.2 }
-      });
-
-      if (!result.ok || !result.replyText) {
-        throw new Error('Sindhi voice translation unavailable');
-      }
-
-      lastVoiceSourceText = sourceText;
-      lastSindhiVoiceText = result.replyText.trim();
-      return lastSindhiVoiceText;
     }
 
     function pcmBase64ToWavUrl(base64, mimeType) {
@@ -954,11 +915,9 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       const voiceName = gender === 'female' ? 'Aoede' : 'Charon';
 
       try {
-        statusText.textContent = '● Preparing Sindhi Voice...';
-        const sindhiText = await translateForSindhiVoice(textToSpeak);
-        if (runId !== voiceRunId) return;
-
-        const segments = splitSpeechText(sindhiText);
+        statusText.textContent = '● Preparing Voice...';
+        // The assistant's displayed reply is already Sindhi; speak that exact text.
+        const segments = splitSpeechText(textToSpeak);
         if (!segments.length) throw new Error('No Sindhi voice text');
 
         for (let i = 0; i < segments.length; i++) {
@@ -1049,17 +1008,13 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
     document.getElementById('newChatBtn').addEventListener('click', () => {
       stopVoice();
       conversationHistory = [];
-      lastSindhiVoiceText = '';
-      lastVoiceSourceText = '';
       setProcessingState(false, '● System Ready');
-      chatBox.innerHTML = `<div class="msg ai"><span class="sender">SHAH PANJO AI</span>Nayi chat shuru ho gayi hai! Apna sawal poochein.</div>`;
+      chatBox.innerHTML = `<div class="msg ai"><span class="sender">SHAH PANJO AI</span>نئين ڳالهه ٻولهه شروع ٿي وئي آهي! مهرباني ڪري پنهنجو سوال پڇو.</div>`;
     });
 
     document.getElementById('clearChatBtn').addEventListener('click', () => {
       stopVoice();
       conversationHistory = [];
-      lastSindhiVoiceText = '';
-      lastVoiceSourceText = '';
       setProcessingState(false, '● System Ready');
       chatBox.innerHTML = '';
     });
