@@ -519,6 +519,8 @@
   </div>
 
   <script>
+    const EMBEDDED_API_KEY = "PASTE_YOUR_API_KEY_HERE";
+
     const chatBox = document.getElementById('chatBox');
     const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
@@ -589,7 +591,11 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
     }
 
     function getSavedApiKey() {
-      return String(localStorage.getItem('gbhss_custom_key') || '').trim();
+      const customKey = String(localStorage.getItem('gbhss_custom_key') || '').trim();
+      if (customKey) return customKey;
+      const embedded = String(EMBEDDED_API_KEY || '').trim();
+      if (embedded && embedded !== 'PASTE_YOUR_API_KEY_HERE') return embedded;
+      return '';
     }
 
     function extractCandidateText(data) {
@@ -607,7 +613,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
     }
 
     async function callDirectEngine(apiKey, payload) {
-      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+      const candidateModels = ['gemini-2.0-flash-lite', 'gemini-flash-latest', 'gemini-2.0-flash', 'gemini-2.5-flash'];
       let lastStatus = 500;
       let lastReason = '';
 
