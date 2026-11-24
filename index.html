@@ -592,46 +592,85 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       return String(localStorage.getItem('gbhss_custom_key') || '').trim();
     }
 
+    function extractCandidateText(data) {
+      const parts = data?.candidates?.[0]?.content?.parts;
+      if (!Array.isArray(parts)) return '';
+      const combined = parts
+        .map((p) => (typeof p?.text === 'string' && !p?.thought ? p.text : ''))
+        .join('')
+        .trim();
+      if (combined) return combined;
+      return parts
+        .map((p) => (typeof p?.text === 'string' ? p.text : ''))
+        .join('')
+        .trim();
+    }
+
     async function callDirectEngine(apiKey, payload) {
       const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+      let lastStatus = 500;
+      let lastReason = '';
 
       for (const modelName of candidateModels) {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            }
+          );
+
+          const rawBody = await response.text();
+          let data = {};
+          try {
+            data = rawBody ? JSON.parse(rawBody) : {};
+          } catch (parseErr) {
+            lastStatus = response.status || 500;
+            lastReason = 'invalid json response';
+            continue;
           }
-        );
 
-        const data = await response.json().catch(() => ({}));
-        const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const replyText = extractCandidateText(data);
 
-        if (response.ok && replyText) {
-          return { ok: true, replyText };
-        }
+          if (response.ok && replyText) {
+            return { ok: true, replyText };
+          }
 
-        const errReason = String(data?.error?.message || '').toLowerCase();
+          lastStatus = response.status;
+          lastReason = String(data?.error?.message || '').toLowerCase();
 
-        if (response.status === 429 || errReason.includes('quota') || errReason.includes('rate')) {
-          return {
-            ok: false,
-            error: 'GBHSS Shah Panjo AI Assistant free request limit is currently reached. Please wait a bit and try again, or contact Team Lead Teacher Sir Masood Ahmed Abbasi.'
-          };
-        }
+          if (lastStatus === 429 || lastReason.includes('quota') || lastReason.includes('rate')) {
+            return {
+              ok: false,
+              error: 'GBHSS Shah Panjo AI Assistant free request limit is currently reached. Please wait a bit and try again, or contact Team Lead Teacher Sir Masood Ahmed Abbasi.'
+            };
+          }
 
-        if (response.status === 401 || response.status === 403 || errReason.includes('api key')) {
-          return {
-            ok: false,
-            error: 'GBHSS Shah Panjo AI Assistant key or access permission needs verification. Please contact Team Lead Teacher Sir Masood Ahmed Abbasi or our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
-          };
+          if (lastStatus === 401 || lastStatus === 403 || lastReason.includes('api key')) {
+            return {
+              ok: false,
+              error: 'GBHSS Shah Panjo AI Assistant key or access permission needs verification. Please contact Team Lead Teacher Sir Masood Ahmed Abbasi or our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
+            };
+          }
+
+          const blockReason = String(data?.candidates?.[0]?.finishReason || '').toUpperCase();
+          if (blockReason === 'SAFETY' || blockReason === 'RECITATION') {
+            return {
+              ok: false,
+              error: 'GBHSS Shah Panjo AI Assistant could not display that response due to safety rules. Please rephrase your question or ask Team Lead Teacher Sir Masood Ahmed Abbasi.'
+            };
+          }
+        } catch (netErr) {
+          lastReason = 'network error';
         }
       }
 
+      const detailHint = lastReason ? ` (${lastReason})` : '';
       return {
         ok: false,
-        error: 'GBHSS Shah Panjo AI Assistant could not return a reply right now. Please try again shortly or consult Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
+        error: `GBHSS Shah Panjo AI Assistant could not return a reply right now${detailHint}. Please try again shortly or consult Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).`
       };
     }
 
@@ -713,7 +752,13 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
             }
           );
 
-          const data = await res.json().catch(() => ({}));
+          const rawAudioBody = await res.text();
+          let data = {};
+          try {
+            data = rawAudioBody ? JSON.parse(rawAudioBody) : {};
+          } catch (e) {
+            data = {};
+          }
           const inlineAudio = data?.candidates?.[0]?.content?.parts?.[0]?.inlineData;
 
           if (res.ok && inlineAudio && inlineAudio.data) {
