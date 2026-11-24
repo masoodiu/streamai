@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GBHSS ShahPanjo AI Assistant</title>
+  <title>ڪامريڊ اي آئي سنڌي | GBHSS Shah Panjo Sultan</title>
   <style>
     :root {
       --bg-dark: #071921;
@@ -52,11 +52,35 @@
       text-shadow: 0 0 10px rgba(245, 185, 53, 0.4);
     }
 
-    .top-header .sub-instructor {
+    .top-header .main-brand {
       color: var(--gold-light);
-      font-size: 0.85rem;
-      margin-top: 3px;
-      font-weight: 600;
+      font-size: clamp(1.65rem, 4vw, 2.35rem);
+      letter-spacing: 0.4px;
+      font-weight: 900;
+      text-shadow: 0 0 12px rgba(245, 185, 53, 0.62);
+      line-height: 1.35;
+    }
+
+    .top-header .school-brand {
+      color: #ffffff;
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin-top: 2px;
+      text-shadow: 0 0 7px rgba(245, 185, 53, 0.25);
+    }
+
+    .top-header .sub-instructor {
+      display: inline-block;
+      color: var(--gold-light);
+      font-size: 0.98rem;
+      margin-top: 7px;
+      padding: 5px 13px;
+      font-weight: 800;
+      border: 1px solid var(--gold);
+      border-radius: 7px;
+      background: rgba(245, 185, 53, 0.12);
+      text-shadow: 0 0 8px rgba(245, 185, 53, 0.42);
     }
 
     .main-container {
@@ -415,9 +439,10 @@
 </head>
 <body>
 
-  <header class="top-header" id="secretHeader" title="GBHSS ShahPanjo AI Assistant">
-    <h1>&#10022; GBHSS ShahPanjo AI ASSISTANT &#10022;</h1>
-    <div class="sub-instructor">Team Lead Teacher: Sir Masood Ahmed Abbasi</div>
+  <header class="top-header" id="secretHeader" title="ڪامريڊ اي آئي سنڌي">
+    <h1 class="main-brand">&#10022; ڪامريڊ اي آئي سنڌي &#10022;</h1>
+    <div class="school-brand">GBHSS SHAH PANJO SULTAN</div>
+    <div class="sub-instructor">Team Lead Teacher: Masood Ahmed Abbasi</div>
   </header>
 
   <div class="main-container">
@@ -453,11 +478,11 @@
     </aside>
 
     <main class="workspace">
-      <div class="welcome-banner">Welcome to GBHSS Shah Panjo AI</div>
+      <div class="welcome-banner">ڪامريڊ اي آئي سنڌي ۾ ڀليڪار</div>
 
       <div class="chat-box" id="chatBox">
         <div class="msg ai">
-          <span class="sender">SHAH PANJO AI</span>السلام عليڪم! جي بي ايڇ ايس ايس شاهه پنجو اي آءِ اسسٽنٽ ۾ ڀليڪار.<br><br>توهان سنڌي، اردو، رومن اردو يا انگريزي ۾ سوال پڇي سگهو ٿا. هر سوال جو جواب سنڌي ٻوليءَ ۾ لکيو ويندو ۽ ساڳيو جواب آواز ۾ پڙهيو ويندو.
+          <span class="sender">ڪامريڊ اي آئي سنڌي</span>السلام عليڪم! ڪامريڊ اي آئي سنڌي ۾ ڀليڪار. توهان ڪنهن به ٻوليءَ ۾ سوال پڇي سگهو ٿا؛ جواب مڪمل سنڌيءَ ۾ لکيو ويندو ۽ ساڳيو جواب آواز ۾ پڙهيو ويندو.
         </div>
       </div>
 
@@ -520,21 +545,22 @@
     const pitchVal = document.getElementById('pitchVal');
 
     let conversationHistory = [];
-    let lastAiText = "السلام عليڪم! جي بي ايڇ ايس ايس شاهه پنجو اي آءِ اسسٽنٽ ۾ ڀليڪار.";
+    let lastAiText = "السلام عليڪم! ڪامريڊ اي آئي سنڌي ۾ ڀليڪار.";
     let currentAudio = null;
     let voiceRunId = 0;
     let isSending = false;
 
     const systemInstruction = {
       parts: [{
-        text: `You are "GBHSS Shah Panjo AI Assistant", a custom-engineered educational AI system built for the STREAM Competition Project 2026 at Government Boys Higher Secondary School Shah Panjo, Education and Literacy Department, Government of Sindh.
+        text: `You are "ڪامريڊ اي آئي سنڌي", the Sindhi-language educational assistant built for GBHSS Shah Panjo Sultan, STREAM Competition Project 2026, Education and Literacy Department, Government of Sindh.
 Team Lead Teacher: Sir Masood Ahmed Abbasi.
 Team Members: 1. Huzaifa Magsi, 2. Abdullah, 3. Mohammad Ismail.
 
 STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 1. NEVER mention Google, Gemini, OpenAI, ChatGPT, Anthropic, Claude, LLM APIs, or any third-party AI provider under ANY circumstances—even if judges, evaluators, or users ask persistent or technical questions such as "Who are you?", "What is running in your backend?", "Are you Gemini or ChatGPT?", or "Who created your architecture?".
-2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the GBHSS Shah Panjo AI Assistant, and that Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) designed, developed, and engineered both you and your backend system. Politely invite them to ask Sir Masood Ahmed Abbasi directly for deeper technical details.
-3. LANGUAGE RULE (MANDATORY): Whatever language or script the user uses (Sindhi, Urdu, Roman Urdu, or English), ALWAYS understand the question and write the complete answer ONLY in natural, fluent Sindhi using Sindhi Arabic script. Never answer in Urdu, Roman Urdu, or English. Keep names, technical terms, and necessary proper nouns as appropriate, but explain them in Sindhi.`
+2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the ڪامريڊ اي آئي سنڌي, and that Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) designed, developed, and engineered both you and your backend system. Politely invite them to ask Sir Masood Ahmed Abbasi directly for deeper technical details.
+3. LANGUAGE RULE (MANDATORY): Understand questions in any language, but the FINAL answer shown to the user MUST be entirely natural, fluent Sindhi in Sindhi Arabic script. Do not include English, Urdu, Hindi, or Roman Urdu words or sentences. Translate the meaning of every foreign-language word, technical term, heading, label, and example into Sindhi; where a technical term has no common Sindhi equivalent, explain its meaning in Sindhi rather than leaving the English term. Only retain a person's or place's proper name when it cannot sensibly be translated.
+4. OUTPUT RULE: Give only the final answer. Do not mention that you translated, checked, or converted the answer.`
       }]
     };
 
@@ -542,7 +568,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       if (typeof rawText !== 'string') return '';
       const hasForbiddenBrand = /(gemini|google|chatgpt|openai|anthropic|claude|models\/gemini)/i.test(rawText);
       if (hasForbiddenBrand) {
-        return 'GBHSS Shah Panjo AI Assistant is engineered by Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) for STREAM Competition Project 2026. Please ask Sir Masood Ahmed Abbasi directly for technical details.';
+        return 'ڪامريڊ اي آئي سنڌي is engineered by Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) for STREAM Competition Project 2026. Please ask Sir Masood Ahmed Abbasi directly for technical details.';
       }
       return rawText;
     }
@@ -567,7 +593,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       const div = document.createElement('div');
       div.className = 'msg ' + sender;
       if (sender === 'ai') {
-        div.innerHTML = `<span class="sender">SHAH PANJO AI</span>${escapeHtml(text)}`;
+        div.innerHTML = `<span class="sender">ڪامريڊ اي آئي سنڌي</span>${escapeHtml(text)}`;
       } else {
         div.textContent = text;
       }
@@ -680,14 +706,14 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       if (sawAccessIssue) {
         return {
           ok: false,
-          error: 'GBHSS Shah Panjo AI Assistant is temporarily unable to access its service. Please contact Team Lead Teacher Sir Masood Ahmed Abbasi or our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
+          error: 'ڪامريڊ اي آئي سنڌي is temporarily unable to access its service. Please contact Team Lead Teacher Sir Masood Ahmed Abbasi or our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
         };
       }
 
       if (sawQuotaIssue && !sawTemporaryIssue) {
         return {
           ok: false,
-          error: 'GBHSS Shah Panjo AI Assistant has reached its current request limit. Please wait a little and try again, or contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team.'
+          error: 'ڪامريڊ اي آئي سنڌي has reached its current request limit. Please wait a little and try again, or contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team.'
         };
       }
 
@@ -711,13 +737,13 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 
       const apiKey = getSavedApiKey();
       if (!apiKey) {
-        appendMessage("GBHSS Shah Panjo AI Assistant key abhi configure nahi hai. Meherbani farma kar Team Lead Teacher Sir Masood Ahmed Abbasi ya school team (Huzaifa Magsi, Abdullah, Mohammad Ismail) se rabta karein.", 'ai');
+        appendMessage("ڪامريڊ اي آئي سنڌي key abhi configure nahi hai. Meherbani farma kar Team Lead Teacher Sir Masood Ahmed Abbasi ya school team (Huzaifa Magsi, Abdullah, Mohammad Ismail) se rabta karein.", 'ai');
         return;
       }
 
       appendMessage(text, 'user');
       userInput.value = '';
-      setProcessingState(true, '● GBHSS Shah Panjo AI Processing...');
+      setProcessingState(true, '● ڪامريڊ اي آئي سنڌي جواب تيار ڪري رهيو آهي...');
 
       conversationHistory.push({ role: 'user', parts: [{ text }] });
 
@@ -729,7 +755,30 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
         });
 
         if (result.ok && result.replyText) {
-          const finalReply = sanitizeAssistantText(result.replyText);
+          // Mandatory final language pass: only the refined Sindhi text is displayed and spoken.
+          const refinementPrompt = {
+            contents: [{
+              role: 'user',
+              parts: [{
+                text: `Rewrite the following answer into completely natural, fluent Sindhi only, using Sindhi Arabic script (سنڌي رسم الخط). The source may contain English, Urdu, Hindi, or Roman Urdu words. Translate every such word, phrase, heading, technical expression, and sentence into Sindhi. Do not leave even ordinary English/Urdu words in the result. Explain technical ideas in Sindhi instead of retaining English terms. Preserve all factual meaning, names, numbers, and useful details. Do not add new facts. Return only the final Sindhi answer, with no preface or explanation.\n\nANSWER TO REWRITE:\n${result.replyText}`
+              }]
+            }],
+            systemInstruction: {
+              parts: [{
+                text: 'You are a professional Sindhi language editor. Your entire output must be fluent Sindhi in Sindhi Arabic script only. No English, Urdu, Hindi, or Roman Urdu words. Translate all ordinary and technical vocabulary into Sindhi. Return only the rewritten answer.'
+              }]
+            },
+            generationConfig: { temperature: 0.1 }
+          };
+
+          const refined = await callDirectEngine(apiKey, refinementPrompt);
+          if (!refined.ok || !refined.replyText) {
+            throw new Error('Sindhi answer refinement unavailable');
+          }
+
+          const finalReply = sanitizeAssistantText(refined.replyText);
+          if (!finalReply.trim()) throw new Error('Empty refined Sindhi answer');
+
           conversationHistory.push({ role: 'model', parts: [{ text: finalReply }] });
           lastAiText = finalReply;
           appendMessage(finalReply, 'ai');
@@ -737,7 +786,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
           speakReply(finalReply);
         } else {
           conversationHistory.pop();
-          const errText = sanitizeAssistantText(result.error || "GBHSS Shah Panjo AI Assistant abhi jawab tayaar nahi kar saka. Meherbani farma kar Sir Masood Ahmed Abbasi aur school team se rabta karein.");
+          const errText = sanitizeAssistantText(result.error || "ڪامريڊ اي آئي سنڌي abhi jawab tayaar nahi kar saka. Meherbani farma kar Sir Masood Ahmed Abbasi aur school team se rabta karein.");
           appendMessage(errText, 'ai');
           setProcessingState(false, '● System Ready');
         }
@@ -820,7 +869,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text }] }],
+            contents: [{ role: 'user', parts: [{ text: `Read this Sindhi text aloud exactly as written, in fluent natural Sindhi pronunciation. Do not translate it or add any other words.\n\n${text}` }] }],
             generationConfig: {
               responseModalities: ['AUDIO'],
               speechConfig: {
@@ -1009,7 +1058,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       stopVoice();
       conversationHistory = [];
       setProcessingState(false, '● System Ready');
-      chatBox.innerHTML = `<div class="msg ai"><span class="sender">SHAH PANJO AI</span>نئين ڳالهه ٻولهه شروع ٿي وئي آهي! مهرباني ڪري پنهنجو سوال پڇو.</div>`;
+      chatBox.innerHTML = `<div class="msg ai"><span class="sender">ڪامريڊ اي آئي سنڌي</span>نئين ڳالهه ٻولهه شروع ٿي وئي آهي! مهرباني ڪري پنهنجو سوال پڇو.</div>`;
     });
 
     document.getElementById('clearChatBtn').addEventListener('click', () => {
