@@ -549,7 +549,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 
     function sanitizeAssistantText(rawText) {
       if (typeof rawText !== 'string') return '';
-      const hasForbiddenBrand = / (gemini|google|chatgpt|openai|anthropic|claude|models\/gemini) /i.test(rawText);
+      const hasForbiddenBrand = /(gemini|google|chatgpt|openai|anthropic|claude|models\/gemini)/i.test(rawText);
       if (hasForbiddenBrand) {
         return 'GBHSS Shah Panjo AI Assistant is engineered by Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) for STREAM Competition Project 2026. Please ask Sir Masood Ahmed Abbasi directly for technical details.';
       }
@@ -593,7 +593,13 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
     }
 
     async function callDirectEngine(apiKey, payload) {
-      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
+      const candidateModels = [
+        'gemini-3.8-flash',
+        'gemini-flash-latest',
+        'gemini-2.0-flash'
+      ];
+
+      let lastApiMessage = '';
 
       for (const modelName of candidateModels) {
         const response = await fetch(
@@ -612,7 +618,9 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
           return { ok: true, replyText };
         }
 
-        const errReason = String(data?.error?.message || '').toLowerCase();
+        const rawErr = String(data?.error?.message || '').trim();
+        if (rawErr) lastApiMessage = rawErr;
+        const errReason = rawErr.toLowerCase();
 
         if (response.status === 429 || errReason.includes('quota') || errReason.includes('rate')) {
           return {
@@ -631,7 +639,9 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 
       return {
         ok: false,
-        error: 'GBHSS Shah Panjo AI Assistant could not return a reply right now. Please try again shortly or consult Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
+        error: lastApiMessage
+          ? `GBHSS Shah Panjo AI Assistant could not return a reply right now (${lastApiMessage}). Please try again shortly or consult Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).`
+          : 'GBHSS Shah Panjo AI Assistant could not return a reply right now. Please try again shortly or consult Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).'
       };
     }
 
