@@ -790,6 +790,31 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       return chunks;
     }
 
+    // Detect the script of each part so mixed-language replies are spoken
+    // with the matching language instead of forcing the whole reply to one voice.
+    function splitSpeechSegments(text, selectedLang) {
+      const sentences = splitSpeechText(text);
+      const segments = [];
+      const arabicScript = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+      const latinScript = /[A-Za-z]/;
+
+      for (const sentence of sentences) {
+        let current = '';
+        let currentKind = '';
+        for (const char of Array.from(sentence)) {
+          const kind = arabicScript.test(char) ? 'arabic' : (latinScript.test(char) ? 'latin' : 'neutral');
+          if (kind !== 'neutral' && currentKind && kind !== currentKind) {
+            if (current.trim()) segments.push({ text: current.trim(), lang: currentKind === 'latin' ? 'en' : selectedLang });
+            current = '';
+          }
+          current += char;
+          if (kind !== 'neutral') currentKind = kind;
+        }
+        if (current.trim()) segments.push({ text: current.trim(), lang: currentKind === 'latin' ? 'en' : selectedLang });
+      }
+      return segments;
+    }
+
     function pcmBase64ToWavUrl(base64, mimeType) {
       const binary = atob(base64);
       const pcm = new Uint8Array(binary.length);
@@ -895,12 +920,20 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
           return;
         }
 
+        const locale = langCode === 'en' ? 'en-US' : (langCode === 'sd' ? 'sd-PK' : 'ur-PK');
         const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = langCode === 'en' ? 'en-US' : (langCode === 'sd' ? 'sd-PK' : 'ur-PK');
+        utter.lang = locale;
         utter.rate = parseFloat(speedRange.value) || 1;
         utter.pitch = gender === 'female'
           ? Math.min(1.4, parseFloat(pitchRange.value) + 0.15)
           : Math.max(0.7, parseFloat(pitchRange.value) - 0.1);
+
+        // Select a voice matching the segment language when the browser has one.
+        const voices = window.speechSynthesis.getVoices();
+        const languagePrefix = langCode === 'en' ? 'en' : (langCode === 'sd' ? 'sd' : 'ur');
+        const matchingVoice = voices.find(v => (v.lang || '').toLowerCase().startsWith(languagePrefix));
+        if (matchingVoice) utter.voice = matchingVoice;
+
         utter.onend = () => resolve(true);
         utter.onerror = () => resolve(false);
         window.speechSynthesis.speak(utter);
@@ -916,38 +949,36 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       const gender = document.querySelector('input[name="voiceGender"]:checked').value;
       const voiceName = gender === 'female' ? 'Aoede' : 'Charon';
       const apiKey = getSavedApiKey();
-      const chunks = splitSpeechText(textToSpeak);
+      const segments = splitSpeechSegments(textToSpeak, selectedLang);
 
-      if (!chunks.length) return;
+      if (!segments.length) return;
 
       let usedBrowserFallback = false;
-      for (let i = 0; i < chunks.length; i++) {
+      for (let i = 0; i < segments.length; i++) {
         if (runId !== voiceRunId) return;
-
-        statusText.textContent = `● Preparing Voice ${i + 1}/${chunks.length}...`;
+        const segment = segments[i];
+        statusText.textContent = `● Preparing Voice ${i + 1}/${segments.length}...`;
 
         if (apiKey && !usedBrowserFallback) {
           try {
-            const audioUrl = await requestSpeechChunk(apiKey, chunks[i], voiceName);
+            const audioUrl = await requestSpeechChunk(apiKey, segment.text, voiceName);
             if (runId !== voiceRunId) {
               URL.revokeObjectURL(audioUrl);
               return;
             }
-            statusText.textContent = `● Speaking ${i + 1}/${chunks.length}...`;
+            statusText.textContent = `● Speaking ${i + 1}/${segments.length}...`;
             await playAudioUrl(audioUrl, runId);
             continue;
           } catch (error) {
-            // If generated audio cannot be prepared or played, continue with
-            // the browser voice for this and the remaining chunks.
             usedBrowserFallback = true;
           }
         }
 
         if (runId !== voiceRunId) return;
-        statusText.textContent = `● Speaking ${i + 1}/${chunks.length}...`;
-        const spoken = await speakChunkWithBrowser(chunks[i], selectedLang, gender, runId);
+        statusText.textContent = `● Speaking ${i + 1}/${segments.length}...`;
+        const spoken = await speakChunkWithBrowser(segment.text, segment.lang, gender, runId);
         if (!spoken && runId === voiceRunId) {
-          statusText.textContent = '● Voice playback is unavailable on this device';
+          statusText.textContent = '● Voice is not available for this language on this device';
           return;
         }
       }
