@@ -19,6 +19,9 @@
       --text-main: #ffffff;
       --text-muted: #b0c4ce;
       --border-gold: rgba(245, 185, 53, 0.55);
+      --ajrak-red: #9e1627;
+      --ajrak-indigo: #0b2447;
+      --ajrak-white: #f8f2e4;
     }
 
     * {
@@ -45,19 +48,41 @@
       cursor: pointer;
     }
 
-    .top-header h1 {
-      color: var(--gold);
-      font-size: 1.45rem;
-      letter-spacing: 1px;
-      text-shadow: 0 0 10px rgba(245, 185, 53, 0.4);
+    /* Wide Ajrak Decorative Frame ONLY around Main Title */
+    .ajrak-title-frame {
+      display: inline-block;
+      padding: 10px 28px;
+      min-width: min(92vw, 520px);
+      margin: 0 auto 6px;
+      border-radius: 12px;
+      background-color: var(--ajrak-indigo);
+      background-image:
+        radial-gradient(circle at 0 0, var(--ajrak-white) 2.2px, transparent 2.8px),
+        radial-gradient(circle at 12px 12px, var(--ajrak-white) 2.2px, transparent 2.8px),
+        linear-gradient(45deg, var(--ajrak-red) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--ajrak-red) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--ajrak-red) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--ajrak-red) 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 0, 0 0, 0 12px, 12px -12px, -12px 0;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 18px rgba(158, 22, 39, 0.72), 0 0 12px rgba(245, 185, 53, 0.45);
+    }
+
+    .ajrak-title-inner {
+      background: linear-gradient(180deg, #130910 0%, #091822 100%);
+      border: 2px solid var(--ajrak-white);
+      border-radius: 7px;
+      padding: 6px 26px;
+      box-shadow: inset 0 0 0 2px var(--ajrak-red);
     }
 
     .top-header .main-brand {
       color: var(--gold-light);
-      font-size: clamp(1.65rem, 4vw, 2.35rem);
+      font-size: clamp(1.55rem, 4vw, 2.25rem);
       letter-spacing: 0.4px;
       font-weight: 900;
-      text-shadow: 0 0 12px rgba(245, 185, 53, 0.62);
+      text-shadow: 0 0 12px rgba(245, 185, 53, 0.65);
       line-height: 1.35;
     }
 
@@ -66,7 +91,7 @@
       font-size: 0.98rem;
       font-weight: 800;
       letter-spacing: 1.5px;
-      margin-top: 2px;
+      margin-top: 4px;
       text-shadow: 0 0 7px rgba(245, 185, 53, 0.25);
     }
 
@@ -188,10 +213,10 @@
     .chat-box {
       flex: 1;
       overflow-y: auto;
-      padding: 14px 8px;
+      padding: 28px 8px 14px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 24px;
       min-height: 260px;
       max-height: 52vh;
     }
@@ -204,13 +229,27 @@
       font-size: 0.94rem;
       word-wrap: break-word;
       white-space: pre-wrap;
+      position: relative;
     }
 
     .msg.ai {
       align-self: flex-start;
-      background: rgba(6, 28, 40, 0.85);
+      background: rgba(6, 28, 40, 0.88);
       border-left: 3px solid var(--gold);
+      border-top: 1.5px solid rgba(245, 185, 53, 0.45);
       color: #ffffff;
+      margin-top: 14px;
+    }
+
+    /* Sindhi Topi perched on top of AI message box */
+    .sindhi-topi-cap {
+      position: absolute;
+      top: -21px;
+      left: 14px;
+      width: 58px;
+      height: 24px;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
     }
 
     .msg.ai .sender {
@@ -440,7 +479,11 @@
 <body>
 
   <header class="top-header" id="secretHeader" title="ڪامريڊ اي آئي سنڌي">
-    <h1 class="main-brand">&#10022; ڪامريڊ اي آئي سنڌي &#10022;</h1>
+    <div class="ajrak-title-frame">
+      <div class="ajrak-title-inner">
+        <h1 class="main-brand">&#10022; ڪامريڊ اي آئي سنڌي &#10022;</h1>
+      </div>
+    </div>
     <div class="school-brand">GBHSS SHAH PANJO SULTAN</div>
     <div class="sub-instructor">Team Lead Teacher: Masood Ahmed Abbasi</div>
   </header>
@@ -482,6 +525,15 @@
 
       <div class="chat-box" id="chatBox">
         <div class="msg ai">
+          <svg class="sindhi-topi-cap" viewBox="0 0 80 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="6" y="7" width="68" height="23" rx="6" fill="#7a1020" stroke="#f5b935" stroke-width="2"/>
+            <path d="M27 30 L27 21 Q40 12 53 21 L53 30 Z" fill="#071921" stroke="#f5b935" stroke-width="1.8"/>
+            <polygon points="15,13 18,17 15,21 12,17" fill="#ffd56b"/>
+            <polygon points="65,13 68,17 65,21 62,17" fill="#ffd56b"/>
+            <circle cx="40" cy="11" r="2" fill="#25d6d6"/>
+            <line x1="6" y1="27" x2="27" y2="27" stroke="#ffd56b" stroke-width="1.6"/>
+            <line x1="53" y1="27" x2="74" y2="27" stroke="#ffd56b" stroke-width="1.6"/>
+          </svg>
           <span class="sender">ڪامريڊ اي آئي سنڌي</span>السلام عليڪم! ڪامريڊ اي آئي سنڌي ۾ ڀليڪار. توهان ڪنهن به ٻوليءَ ۾ سوال پڇي سگهو ٿا؛ جواب مڪمل سنڌيءَ ۾ لکيو ويندو ۽ ساڳيو جواب آواز ۾ پڙهيو ويندو.
         </div>
       </div>
@@ -490,19 +542,19 @@
 
       <div class="input-row">
         <input type="text" id="userInput" placeholder="پنهنجو سوال هتي لکو (سنڌي / اردو / رومن اردو / English)..." />
-        <button class="send-btn" id="sendBtn">SEND &gt;</button>
+        <button class="send-btn" id="sendBtn" type="button">SEND &gt;</button>
       </div>
 
       <div class="action-buttons">
-        <button class="btn btn-speak" id="micBtn">&#127908; SPEAK</button>
-        <button class="btn btn-voice" id="replayVoiceBtn">&#128266; SPEAK REPLY</button>
-        <button class="btn btn-stop" id="stopVoiceBtn">&#9209; STOP VOICE</button>
-        <button class="btn btn-new" id="newChatBtn">+ NEW CHAT</button>
-        <button class="btn btn-clear" id="clearChatBtn">CLEAR CHAT</button>
+        <button class="btn btn-speak" id="micBtn" type="button">&#127908; SPEAK</button>
+        <button class="btn btn-voice" id="replayVoiceBtn" type="button">&#128266; SPEAK REPLY</button>
+        <button class="btn btn-stop" id="stopVoiceBtn" type="button">&#9209; STOP VOICE</button>
+        <button class="btn btn-new" id="newChatBtn" type="button">+ NEW CHAT</button>
+        <button class="btn btn-clear" id="clearChatBtn" type="button">CLEAR CHAT</button>
       </div>
 
       <div class="voice-controls">
-<div class="control-group">
+        <div class="control-group">
           <label>Voice Gender:</label>
           <div class="radio-group">
             <label><input type="radio" name="voiceGender" value="male" checked /> Male</label>
@@ -529,8 +581,8 @@
     <p style="font-size:0.8rem; color:#b0c4ce;">Enter API key once after unlocking admin panel. Saved locally in this browser.</p>
     <input type="password" id="customApiKeyInput" placeholder="Enter API Key..." />
     <div class="admin-actions">
-      <button class="btn btn-clear" id="closeAdminBtn">Lock &amp; Hide</button>
-      <button class="btn btn-voice" id="saveAdminKeyBtn">Save Key</button>
+      <button class="btn btn-clear" id="closeAdminBtn" type="button">Lock &amp; Hide</button>
+      <button class="btn btn-voice" id="saveAdminKeyBtn" type="button">Save Key</button>
     </div>
   </div>
 
@@ -550,17 +602,11 @@
     let voiceRunId = 0;
     let isSending = false;
 
+    const sindhiTopiSvg = '<svg class="sindhi-topi-cap" viewBox="0 0 80 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="6" y="7" width="68" height="23" rx="6" fill="#7a1020" stroke="#f5b935" stroke-width="2"/><path d="M27 30 L27 21 Q40 12 53 21 L53 30 Z" fill="#071921" stroke="#f5b935" stroke-width="1.8"/><polygon points="15,13 18,17 15,21 12,17" fill="#ffd56b"/><polygon points="65,13 68,17 65,21 62,17" fill="#ffd56b"/><circle cx="40" cy="11" r="2" fill="#25d6d6"/><line x1="6" y1="27" x2="27" y2="27" stroke="#ffd56b" stroke-width="1.6"/><line x1="53" y1="27" x2="74" y2="27" stroke="#ffd56b" stroke-width="1.6"/></svg>';
+
     const systemInstruction = {
       parts: [{
-        text: `You are "ڪامريڊ اي آئي سنڌي", the Sindhi-language educational assistant built for GBHSS Shah Panjo Sultan, STREAM Competition Project 2026, Education and Literacy Department, Government of Sindh.
-Team Lead Teacher: Sir Masood Ahmed Abbasi.
-Team Members: 1. Huzaifa Magsi, 2. Abdullah, 3. Mohammad Ismail.
-
-STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
-1. NEVER mention Google, Gemini, OpenAI, ChatGPT, Anthropic, Claude, LLM APIs, or any third-party AI provider under ANY circumstances—even if judges, evaluators, or users ask persistent or technical questions such as "Who are you?", "What is running in your backend?", "Are you Gemini or ChatGPT?", or "Who created your architecture?".
-2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the ڪامريڊ اي آئي سنڌي, and that Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) designed, developed, and engineered both you and your backend system. Politely invite them to ask Sir Masood Ahmed Abbasi directly for deeper technical details.
-3. LANGUAGE RULE (MANDATORY): Understand questions in any language, but the FINAL answer shown to the user MUST be entirely natural, fluent Sindhi in Sindhi Arabic script. Do not include English, Urdu, Hindi, or Roman Urdu words or sentences. Translate the meaning of every foreign-language word, technical term, heading, label, and example into Sindhi; where a technical term has no common Sindhi equivalent, explain its meaning in Sindhi rather than leaving the English term. Only retain a person's or place's proper name when it cannot sensibly be translated.
-4. OUTPUT RULE: Give only the final answer. Do not mention that you translated, checked, or converted the answer.`
+        text: 'You are "ڪامريڊ اي آئي سنڌي", the Sindhi-language educational assistant built for GBHSS Shah Panjo Sultan, STREAM Competition Project 2026, Education and Literacy Department, Government of Sindh.\nTeam Lead Teacher: Sir Masood Ahmed Abbasi.\nTeam Members: 1. Huzaifa Magsi, 2. Abdullah, 3. Mohammad Ismail.\n\nSTRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):\n1. NEVER mention Google, Gemini, OpenAI, ChatGPT, Anthropic, Claude, LLM APIs, or any third-party AI provider under ANY circumstances—even if judges, evaluators, or users ask persistent or technical questions such as "Who are you?", "What is running in your backend?", "Are you Gemini or ChatGPT?", or "Who created your architecture?".\n2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the ڪامريڊ اي آئي سنڌي, and that Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) designed, developed, and engineered both you and your backend system. Politely invite them to ask Sir Masood Ahmed Abbasi directly for deeper technical details.\n3. LANGUAGE & PRECISION RULE (MANDATORY): Understand questions in any language, but the FINAL answer shown to the user MUST be concise, precise, and written in EXACTLY 3 short, clear lines (3 sentences) in natural, fluent Sindhi using Sindhi Arabic script. Do not write long essays or 15-20 lines. Do not include English, Urdu, Hindi, or Roman Urdu words. Translate technical terms into simple Sindhi meaning.\n4. OUTPUT RULE: Give only the final 3-line Sindhi answer. Do not mention that you translated, summarized, or converted the answer.'
       }]
     };
 
@@ -568,9 +614,26 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       if (typeof rawText !== 'string') return '';
       const hasForbiddenBrand = /(gemini|google|chatgpt|openai|anthropic|claude|models\/gemini)/i.test(rawText);
       if (hasForbiddenBrand) {
-        return 'ڪامريڊ اي آئي سنڌي is engineered by Team Lead Teacher Sir Masood Ahmed Abbasi and our school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) for STREAM Competition Project 2026. Please ask Sir Masood Ahmed Abbasi directly for technical details.';
+        return 'ڪامريڊ اي آئي سنڌي اسان جي اسڪول جي استاد سر مسعود احمد عباسي ۽ سندس شاگرد ٽيم تيار ڪيو آهي.\nهي نظام اسٽريم مقابلي 2026 لاءِ خاص سنڌي تعليمي مددگار طور ٺاهيو ويو آهي.\nوڌيڪ فني تفصيلن لاءِ مهرباني ڪري سڌو سر مسعود احمد عباسي سان رابطو ڪريو.';
       }
       return rawText;
+    }
+
+    function enforceThreeLines(text) {
+      const cleaned = String(text || '').replace(/\r/g, '').trim();
+      if (!cleaned) return '';
+
+      let lines = cleaned
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (lines.length < 2) {
+        const sentences = cleaned.match(/[^۔.!?؟]+[۔.!?؟]?/g) || [cleaned];
+        lines = sentences.map(s => s.trim()).filter(Boolean);
+      }
+
+      return lines.slice(0, 3).join('\n');
     }
 
     function setProcessingState(active, labelText = '● System Ready') {
@@ -593,7 +656,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       const div = document.createElement('div');
       div.className = 'msg ' + sender;
       if (sender === 'ai') {
-        div.innerHTML = `<span class="sender">ڪامريڊ اي آئي سنڌي</span>${escapeHtml(text)}`;
+        div.innerHTML = sindhiTopiSvg + '<span class="sender">ڪامريڊ اي آئي سنڌي</span>' + escapeHtml(text);
       } else {
         div.textContent = text;
       }
@@ -602,7 +665,10 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
     }
 
     function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     }
 
     function getSavedApiKey() {
@@ -614,7 +680,6 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
     }
 
     async function callDirectEngine(apiKey, payload) {
-      // Use current supported models only. The second model is a lighter fallback.
       const candidateModels = [
         'gemini-3.8-flash',
         'gemini-3.5-flash-lite'
@@ -626,7 +691,6 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       let sawInvalidRequest = false;
 
       for (const modelName of candidateModels) {
-        // Retry temporary overload/network failures with a short exponential delay.
         for (let attempt = 0; attempt < 3; attempt++) {
           let response;
           let data = {};
@@ -667,8 +731,6 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 
             if (status === 429) {
               sawQuotaIssue = true;
-              // A short wait can recover a rate-limit response; if it is a hard
-              // daily/project limit, the other model may still be available.
               if (attempt < 2) {
                 await wait(1200 * Math.pow(2, attempt));
                 continue;
@@ -686,11 +748,9 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
             }
 
             if (status === 404) {
-              // Try the next supported model if this one is unavailable.
               break;
             }
 
-            // A request-format or safety issue will not be fixed by retrying.
             sawInvalidRequest = true;
             break;
           } catch (networkError) {
@@ -737,13 +797,13 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 
       const apiKey = getSavedApiKey();
       if (!apiKey) {
-        appendMessage("ڪامريڊ اي آئي سنڌي key abhi configure nahi hai. Meherbani farma kar Team Lead Teacher Sir Masood Ahmed Abbasi ya school team (Huzaifa Magsi, Abdullah, Mohammad Ismail) se rabta karein.", 'ai');
+        appendMessage('ڪامريڊ اي آئي سنڌي key abhi configure nahi hai. Meherbani farma kar Team Lead Teacher Sir Masood Ahmed Abbasi ya school team (Huzaifa Magsi, Abdullah, Mohammad Ismail) se rabta karein.', 'ai');
         return;
       }
 
       appendMessage(text, 'user');
       userInput.value = '';
-      setProcessingState(true, '● ڪامريڊ اي آئي سنڌي جواب تيار ڪري رهيو آهي...');
+      setProcessingState(true, '● ڪامريڊ اي آئي سنڌي مختصر جواب تيار ڪري رهيو آهي...');
 
       conversationHistory.push({ role: 'user', parts: [{ text }] });
 
@@ -751,21 +811,20 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
         const result = await callDirectEngine(apiKey, {
           contents: conversationHistory.slice(-10),
           systemInstruction,
-          generationConfig: { temperature: 0.4 }
+          generationConfig: { temperature: 0.35 }
         });
 
         if (result.ok && result.replyText) {
-          // Mandatory final language pass: only the refined Sindhi text is displayed and spoken.
           const refinementPrompt = {
             contents: [{
               role: 'user',
               parts: [{
-                text: `Rewrite the following answer into completely natural, fluent Sindhi only, using Sindhi Arabic script (سنڌي رسم الخط). The source may contain English, Urdu, Hindi, or Roman Urdu words. Translate every such word, phrase, heading, technical expression, and sentence into Sindhi. Do not leave even ordinary English/Urdu words in the result. Explain technical ideas in Sindhi instead of retaining English terms. Preserve all factual meaning, names, numbers, and useful details. Do not add new facts. Return only the final Sindhi answer, with no preface or explanation.\n\nANSWER TO REWRITE:\n${result.replyText}`
+                text: 'Summarize and rewrite the following answer into EXACTLY 3 short, precise, complete lines (3 sentences, each on its own line) in natural, fluent Sindhi only, using Sindhi Arabic script (سنڌي رسم الخط). Do not write more than 3 lines. Translate every English, Urdu, Hindi, or Roman Urdu word into Sindhi. Keep only the core accurate facts clearly. Return only the 3-line Sindhi answer with no bullets, numbers, or preface.\n\nANSWER TO CONDENSE:\n' + result.replyText
               }]
             }],
             systemInstruction: {
               parts: [{
-                text: 'You are a professional Sindhi language editor. Your entire output must be fluent Sindhi in Sindhi Arabic script only. No English, Urdu, Hindi, or Roman Urdu words. Translate all ordinary and technical vocabulary into Sindhi. Return only the rewritten answer.'
+                text: 'You are a precise Sindhi language editor. Output EXACTLY 3 short lines in pure Sindhi Arabic script only. No English, Urdu, Hindi, or Roman Urdu words. Return only the 3 lines.'
               }]
             },
             generationConfig: { temperature: 0.1 }
@@ -776,7 +835,8 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
             throw new Error('Sindhi answer refinement unavailable');
           }
 
-          const finalReply = sanitizeAssistantText(refined.replyText);
+          const sanitized = sanitizeAssistantText(refined.replyText);
+          const finalReply = enforceThreeLines(sanitized);
           if (!finalReply.trim()) throw new Error('Empty refined Sindhi answer');
 
           conversationHistory.push({ role: 'model', parts: [{ text: finalReply }] });
@@ -786,47 +846,43 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
           speakReply(finalReply);
         } else {
           conversationHistory.pop();
-          const errText = sanitizeAssistantText(result.error || "ڪامريڊ اي آئي سنڌي abhi jawab tayaar nahi kar saka. Meherbani farma kar Sir Masood Ahmed Abbasi aur school team se rabta karein.");
+          const errText = sanitizeAssistantText(result.error || 'ڪامريڊ اي آئي سنڌي abhi jawab tayaar nahi kar saka. Meherbani farma kar Sir Masood Ahmed Abbasi aur school team se rabta karein.');
           appendMessage(errText, 'ai');
           setProcessingState(false, '● System Ready');
         }
       } catch (err) {
         conversationHistory.pop();
         setProcessingState(false, '● System Ready');
-        appendMessage("We are experiencing a temporary interruption. Please check the internet connection and try again. If the issue continues, contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).", 'ai');
+        appendMessage('We are experiencing a temporary interruption. Please check the internet connection and try again. If the issue continues, contact Team Lead Teacher Sir Masood Ahmed Abbasi and his team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).', 'ai');
       }
     }
 
-    // Split long replies into natural, speakable sentence-sized pieces.
+    // Break the 3-line reply into AT MOST 2 balanced chunks for fast, reliable TTS
     function splitSpeechText(text) {
       const cleaned = String(text || '').replace(/\r/g, '').trim();
       if (!cleaned) return [];
 
-      const sentences = cleaned.match(/[^۔.!?؟\n]+[۔.!?؟]?|\n+/g) || [cleaned];
-      const chunks = [];
-      for (const item of sentences) {
-        const sentence = item.trim();
-        if (!sentence) continue;
+      let lines = cleaned
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(Boolean);
 
-        // Keep unusually long sentences manageable without cutting words.
-        if (sentence.length <= 220) {
-          chunks.push(sentence);
-          continue;
-        }
-
-        const words = sentence.split(/\s+/);
-        let part = '';
-        for (const word of words) {
-          if (part && (part + ' ' + word).length > 180) {
-            chunks.push(part);
-            part = word;
-          } else {
-            part += (part ? ' ' : '') + word;
-          }
-        }
-        if (part) chunks.push(part);
+      if (lines.length <= 1) {
+        const sentences = cleaned.match(/[^۔.!?؟]+[۔.!?؟]?/g) || [cleaned];
+        lines = sentences.map(s => s.trim()).filter(Boolean);
       }
-      return chunks;
+
+      if (lines.length <= 1) {
+        return [lines[0]];
+      }
+
+      if (lines.length === 2) {
+        return [lines[0], lines[1]];
+      }
+
+      const chunk1 = lines[0];
+      const chunk2 = lines.slice(1).join(' ');
+      return [chunk1, chunk2];
     }
 
     function pcmBase64ToWavUrl(base64, mimeType) {
@@ -849,7 +905,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       writeText(8, 'WAVE');
       writeText(12, 'fmt ');
       view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true); // PCM
+      view.setUint16(20, 1, true);
       view.setUint16(22, channels, true);
       view.setUint32(24, sampleRate, true);
       view.setUint32(28, sampleRate * channels * 2, true);
@@ -863,38 +919,51 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
     }
 
     async function requestSpeechChunk(apiKey, text, voiceName) {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: `Read this Sindhi text aloud exactly as written, in fluent natural Sindhi pronunciation. Do not translate it or add any other words.\n\n${text}` }] }],
-            generationConfig: {
-              responseModalities: ['AUDIO'],
-              speechConfig: {
-                voiceConfig: {
-                  prebuiltVoiceConfig: { voiceName }
-                }
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 30000);
+          let response;
+          try {
+            response = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ role: 'user', parts: [{ text: 'Read this Sindhi text aloud exactly as written, in fluent natural Sindhi pronunciation. Do not translate it or add any other words.\n\n' + text }] }],
+                  generationConfig: {
+                    responseModalities: ['AUDIO'],
+                    speechConfig: {
+                      voiceConfig: {
+                        prebuiltVoiceConfig: { voiceName }
+                      }
+                    }
+                  }
+                }),
+                signal: controller.signal
               }
+            );
+          } finally {
+            clearTimeout(timeoutId);
+          }
+
+          const data = await response.json().catch(() => ({}));
+          const inlineAudio = data?.candidates?.[0]?.content?.parts?.find(part => part.inlineData)?.inlineData;
+          if (response.ok && inlineAudio?.data) {
+            const mimeType = inlineAudio.mimeType || 'audio/L16;rate=24000';
+            if (/audio\/L16/i.test(mimeType) || /audio\/pcm/i.test(mimeType)) {
+              return pcmBase64ToWavUrl(inlineAudio.data, mimeType);
             }
-          })
+            const blob = await (await fetch(`data:${mimeType};base64,${inlineAudio.data}`)).blob();
+            return URL.createObjectURL(blob);
+          }
+        } catch (_) {
+          // Retry once after short pause
         }
-      );
-
-      const data = await response.json().catch(() => ({}));
-      const inlineAudio = data?.candidates?.[0]?.content?.parts?.find(part => part.inlineData)?.inlineData;
-      if (!response.ok || !inlineAudio?.data) {
-        throw new Error('Speech segment unavailable');
+        if (attempt === 0) await wait(700);
       }
-
-      const mimeType = inlineAudio.mimeType || 'audio/L16;rate=24000';
-      if (/audio\/L16/i.test(mimeType) || /audio\/pcm/i.test(mimeType)) {
-        return pcmBase64ToWavUrl(inlineAudio.data, mimeType);
-      }
-
-      const blob = await (await fetch(`data:${mimeType};base64,${inlineAudio.data}`)).blob();
-      return URL.createObjectURL(blob);
+      throw new Error('Speech segment unavailable');
     }
 
     function playAudioUrl(url, runId) {
@@ -965,9 +1034,15 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
 
       try {
         statusText.textContent = '● Preparing Voice...';
-        // The assistant's displayed reply is already Sindhi; speak that exact text.
         const segments = splitSpeechText(textToSpeak);
         if (!segments.length) throw new Error('No Sindhi voice text');
+
+        const apiKey = getSavedApiKey();
+
+        let nextPromise = null;
+        if (segments.length > 1 && apiKey) {
+          nextPromise = requestSpeechChunk(apiKey, segments[1], voiceName).catch(() => null);
+        }
 
         for (let i = 0; i < segments.length; i++) {
           if (runId !== voiceRunId) return;
@@ -975,8 +1050,13 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
           statusText.textContent = `● Preparing Sindhi Voice ${i + 1}/${segments.length}...`;
 
           try {
-            const apiKey = getSavedApiKey();
-            const audioUrl = await requestSpeechChunk(apiKey, segment, voiceName);
+            let audioUrl = null;
+            if (i === 1 && nextPromise) {
+              audioUrl = await nextPromise;
+            }
+            if (!audioUrl) {
+              audioUrl = await requestSpeechChunk(apiKey, segment, voiceName);
+            }
             if (runId !== voiceRunId) {
               URL.revokeObjectURL(audioUrl);
               return;
@@ -1058,7 +1138,7 @@ STRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):
       stopVoice();
       conversationHistory = [];
       setProcessingState(false, '● System Ready');
-      chatBox.innerHTML = `<div class="msg ai"><span class="sender">ڪامريڊ اي آئي سنڌي</span>نئين ڳالهه ٻولهه شروع ٿي وئي آهي! مهرباني ڪري پنهنجو سوال پڇو.</div>`;
+      chatBox.innerHTML = '<div class="msg ai">' + sindhiTopiSvg + '<span class="sender">ڪامريڊ اي آئي سنڌي</span>نئين ڳالهه ٻولهه شروع ٿي وئي آهي! مهرباني ڪري پنهنجو سوال پڇو.</div>';
     });
 
     document.getElementById('clearChatBtn').addEventListener('click', () => {
