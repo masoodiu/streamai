@@ -697,7 +697,7 @@
 
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 45000);
+            const timeoutId = setTimeout(() => controller.abort(), 90000);
             try {
               response = await fetch(
                 `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
@@ -803,7 +803,7 @@
 
       appendMessage(text, 'user');
       userInput.value = '';
-      setProcessingState(true, '● ڪامريڊ اي آئي سنڌي مختصر جواب تيار ڪري رهيو آهي...');
+      setProcessingState(true, '● ڪامريڊ اي آئي سنڌي جواب تيار ڪري رهيو آهي...');
 
       conversationHistory.push({ role: 'user', parts: [{ text }] });
 
@@ -922,7 +922,7 @@
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000);
+          const timeoutId = setTimeout(() => controller.abort(), 90000);
           let response;
           try {
             response = await fetch(
@@ -1033,36 +1033,51 @@
       const voiceName = gender === 'female' ? 'Aoede' : 'Charon';
 
       try {
-        statusText.textContent = '● Preparing Voice...';
+        statusText.textContent = '● Preparing Sindhi Voice...';
         const segments = splitSpeechText(textToSpeak);
         if (!segments.length) throw new Error('No Sindhi voice text');
 
         const apiKey = getSavedApiKey();
 
-        let nextPromise = null;
-        if (segments.length > 1 && apiKey) {
-          nextPromise = requestSpeechChunk(apiKey, segments[1], voiceName).catch(() => null);
-        }
+        // Start fetching chunk 1 first, and start chunk 2 silently in background ONLY after chunk 1 is ready
+        let chunk2Promise = null;
 
         for (let i = 0; i < segments.length; i++) {
           if (runId !== voiceRunId) return;
           const segment = segments[i];
-          statusText.textContent = `● Preparing Sindhi Voice ${i + 1}/${segments.length}...`;
 
           try {
             let audioUrl = null;
-            if (i === 1 && nextPromise) {
-              audioUrl = await nextPromise;
-            }
-            if (!audioUrl) {
+            if (i === 0) {
+              statusText.textContent = `● Preparing Sindhi Voice 1/${segments.length}...`;
               audioUrl = await requestSpeechChunk(apiKey, segment, voiceName);
+              if (runId !== voiceRunId) {
+                URL.revokeObjectURL(audioUrl);
+                return;
+              }
+              // Start prefetching chunk 2 silently while chunk 1 is speaking (without interrupting chunk 1 or overwriting status)
+              if (segments.length > 1 && apiKey) {
+                chunk2Promise = requestSpeechChunk(apiKey, segments[1], voiceName).catch(() => null);
+              }
+              statusText.textContent = `● Speaking Sindhi 1/${segments.length}...`;
+              await playAudioUrl(audioUrl, runId);
+            } else {
+              // Chunk 1 has completely finished playing before we touch status or play chunk 2
+              if (chunk2Promise) {
+                statusText.textContent = `● Preparing Sindhi Voice ${i + 1}/${segments.length}...`;
+                audioUrl = await chunk2Promise;
+              }
+              if (!audioUrl) {
+                statusText.textContent = `● Preparing Sindhi Voice ${i + 1}/${segments.length}...`;
+                audioUrl = await requestSpeechChunk(apiKey, segment, voiceName);
+              }
+              if (runId !== voiceRunId) {
+                URL.revokeObjectURL(audioUrl);
+                return;
+              }
+              statusText.textContent = `● Speaking Sindhi ${i + 1}/${segments.length}...`;
+              await playAudioUrl(audioUrl, runId);
             }
-            if (runId !== voiceRunId) {
-              URL.revokeObjectURL(audioUrl);
-              return;
-            }
-            statusText.textContent = `● Speaking Sindhi ${i + 1}/${segments.length}...`;
-            await playAudioUrl(audioUrl, runId);
           } catch (audioError) {
             if (runId !== voiceRunId) return;
             const spoken = await speakChunkWithBrowser(segment, gender, runId);
