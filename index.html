@@ -624,6 +624,16 @@
     </div>
   </div>
 
+  <div id="mobileAdminTrigger" title="Admin Menu" style="position:fixed; bottom:10px; right:10px; width:28px; height:28px; border-radius:999px; background:rgba(245,185,53,0.12); border:1px solid rgba(245,185,53,0.28); color:rgba(255,213,107,0.55); font-size:0.78rem; font-weight:800; display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none; z-index:9990;">&#9881;</div>
+
+  <div id="mobileAdminMenu" style="display:none; position:fixed; bottom:46px; right:10px; background:#0c222d; border:2px solid var(--gold); border-radius:10px; padding:12px; width:210px; z-index:9998; box-shadow:0 10px 28px rgba(0,0,0,0.85);">
+    <div style="display:flex; flex-direction:column; gap:7px;">
+      <button class="btn btn-voice" id="mobileConfigureKeyBtn" type="button" style="width:100%;">Add Server</button>
+      <button class="btn btn-stop" id="mobileRemoveKeyBtn" type="button" style="width:100%;">Remove Server</button>
+      <button class="btn btn-clear" id="mobileCloseMenuBtn" type="button" style="width:100%;">Close</button>
+    </div>
+  </div>
+
   <div id="adminPasswordModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#0c222d; border:2px solid var(--gold); border-radius:12px; padding:20px; width:90%; max-width:360px; z-index:10000; box-shadow:0 10px 35px rgba(0,0,0,0.88);">
     <h3 style="color:var(--gold); margin-bottom:10px; font-size:1rem;">&#128272; Enter Admin Password</h3>
     <p style="font-size:0.8rem; color:#b0c4ce;">Password is hidden with asterisks for security.</p>
@@ -1359,6 +1369,33 @@
 
     document.getElementById('closeAdminBtn').addEventListener('click', () => {
       document.getElementById('adminPanel').style.display = 'none';
+    });
+
+    const mobileAdminMenu = document.getElementById('mobileAdminMenu');
+    document.getElementById('mobileAdminTrigger').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isVisible = mobileAdminMenu.style.display === 'block';
+      mobileAdminMenu.style.display = isVisible ? 'none' : 'block';
+    });
+
+    document.getElementById('mobileConfigureKeyBtn').addEventListener('click', () => {
+      mobileAdminMenu.style.display = 'none';
+      openSecretAdmin('configure');
+    });
+
+    document.getElementById('mobileRemoveKeyBtn').addEventListener('click', () => {
+      mobileAdminMenu.style.display = 'none';
+      openSecretAdmin('remove');
+    });
+
+    document.getElementById('mobileCloseMenuBtn').addEventListener('click', () => {
+      mobileAdminMenu.style.display = 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!mobileAdminMenu.contains(e.target) && e.target.id !== 'mobileAdminTrigger') {
+        mobileAdminMenu.style.display = 'none';
+      }
     });
   </script>
 </body>
