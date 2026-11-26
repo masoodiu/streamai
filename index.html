@@ -618,8 +618,19 @@
     <p style="font-size:0.8rem; color:#b0c4ce;">Enter API key once after unlocking admin panel. Saved locally in this browser.</p>
     <input type="password" id="customApiKeyInput" placeholder="Enter API Key..." />
     <div class="admin-actions">
+      <button class="btn btn-stop" id="removeAdminKeyBtn" type="button">Remove Key</button>
       <button class="btn btn-clear" id="closeAdminBtn" type="button">Lock &amp; Hide</button>
       <button class="btn btn-voice" id="saveAdminKeyBtn" type="button">Save Key</button>
+    </div>
+  </div>
+
+  <div id="adminPasswordModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#0c222d; border:2px solid var(--gold); border-radius:12px; padding:20px; width:90%; max-width:360px; z-index:10000; box-shadow:0 10px 35px rgba(0,0,0,0.88);">
+    <h3 style="color:var(--gold); margin-bottom:10px; font-size:1rem;">&#128272; Enter Admin Password</h3>
+    <p style="font-size:0.8rem; color:#b0c4ce;">Password is hidden with asterisks for security.</p>
+    <input type="password" id="adminPasswordInput" placeholder="••••••••••••" autocomplete="off" style="width:100%; padding:9px; margin:8px 0 12px; border-radius:6px; border:1px solid #3c7b96; background:#06151c; color:#fff;" />
+    <div class="admin-actions">
+      <button class="btn btn-clear" id="cancelAdminPwdBtn" type="button">Cancel</button>
+      <button class="btn btn-voice" id="submitAdminPwdBtn" type="button">Unlock</button>
     </div>
   </div>
 
@@ -1254,20 +1265,65 @@
       chatBox.innerHTML = '';
     });
 
-    function openSecretAdmin() {
-      const pwd = prompt('Enter Admin Password:');
-      if (pwd === 'shahpanjo2026') {
+    let pendingAdminAction = 'configure';
+    const adminPasswordModal = document.getElementById('adminPasswordModal');
+    const adminPasswordInput = document.getElementById('adminPasswordInput');
+
+    function openSecretAdmin(actionMode = 'configure') {
+      pendingAdminAction = actionMode;
+      adminPasswordInput.value = '';
+      document.getElementById('adminPanel').style.display = 'none';
+      adminPasswordModal.style.display = 'block';
+      setTimeout(() => adminPasswordInput.focus(), 50);
+    }
+
+    function executeAuthorizedAdminAction() {
+      if (pendingAdminAction === 'remove') {
+        localStorage.removeItem('gbhss_custom_key');
+        document.getElementById('customApiKeyInput').value = '';
+        adminPasswordModal.style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'none';
+        alert('Browser se API key remove ho gayi hai.');
+      } else {
         document.getElementById('customApiKeyInput').value = localStorage.getItem('gbhss_custom_key') || '';
+        adminPasswordModal.style.display = 'none';
         document.getElementById('adminPanel').style.display = 'block';
-      } else if (pwd !== null) {
+      }
+    }
+
+    function verifyAdminPassword() {
+      const pwd = adminPasswordInput.value;
+      if (pwd === 'shahpanjo2026') {
+        adminPasswordInput.value = '';
+        executeAuthorizedAdminAction();
+      } else {
+        adminPasswordInput.value = '';
         alert('Galat password.');
       }
     }
 
+    document.getElementById('submitAdminPwdBtn').addEventListener('click', verifyAdminPassword);
+    adminPasswordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        verifyAdminPassword();
+      } else if (e.key === 'Escape') {
+        adminPasswordModal.style.display = 'none';
+      }
+    });
+
+    document.getElementById('cancelAdminPwdBtn').addEventListener('click', () => {
+      adminPasswordInput.value = '';
+      adminPasswordModal.style.display = 'none';
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
-        openSecretAdmin();
+        openSecretAdmin('configure');
+      } else if (e.ctrlKey && e.shiftKey && (e.key === 'R' || e.key === 'r' || e.key === 'X' || e.key === 'x')) {
+        e.preventDefault();
+        openSecretAdmin('remove');
       }
     });
 
@@ -1279,8 +1335,15 @@
       tapTimer = setTimeout(() => { tapCount = 0; }, 1500);
       if (tapCount >= 5) {
         tapCount = 0;
-        openSecretAdmin();
+        openSecretAdmin('configure');
       }
+    });
+
+    document.getElementById('removeAdminKeyBtn').addEventListener('click', () => {
+      localStorage.removeItem('gbhss_custom_key');
+      document.getElementById('customApiKeyInput').value = '';
+      document.getElementById('adminPanel').style.display = 'none';
+      alert('Browser se API key remove ho gayi hai.');
     });
 
     document.getElementById('saveAdminKeyBtn').addEventListener('click', () => {
