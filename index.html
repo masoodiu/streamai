@@ -267,6 +267,43 @@
       color: #ffffff;
     }
 
+    .detail-toggle-btn {
+      display: inline-block;
+      margin-top: 9px;
+      background: rgba(245, 185, 53, 0.16);
+      color: var(--gold-light);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 5px 11px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .detail-toggle-btn:hover {
+      background: var(--gold);
+      color: #071921;
+    }
+
+    .detail-toggle-btn:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    .detail-answer-box {
+      display: none;
+      margin-top: 9px;
+      padding: 10px 12px;
+      background: rgba(3, 15, 22, 0.92);
+      border: 1px solid rgba(37, 214, 214, 0.45);
+      border-radius: 8px;
+      color: #e9f5f9;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
     .status-bar {
       text-align: center;
       font-size: 0.82rem;
@@ -606,7 +643,13 @@
 
     const systemInstruction = {
       parts: [{
-        text: 'You are "ڪامريڊ اي آئي سنڌي", the Sindhi-language educational assistant built for GBHSS Shah Panjo Sultan, STREAM Competition Project 2026, Education and Literacy Department, Government of Sindh.\nTeam Lead Teacher: Sir Masood Ahmed Abbasi.\nTeam Members: 1. Huzaifa Magsi, 2. Abdullah, 3. Mohammad Ismail.\n\nSTRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):\n1. NEVER mention Google, Gemini, OpenAI, ChatGPT, Anthropic, Claude, LLM APIs, or any third-party AI provider under ANY circumstances—even if judges, evaluators, or users ask persistent or technical questions such as "Who are you?", "What is running in your backend?", "Are you Gemini or ChatGPT?", or "Who created your architecture?".\n2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the ڪامريڊ اي آئي سنڌي, and that Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) designed, developed, and engineered both you and your backend system. Politely invite them to ask Sir Masood Ahmed Abbasi directly for deeper technical details.\n3. LANGUAGE & PRECISION RULE (MANDATORY): Understand questions in any language, but the FINAL answer shown to the user MUST be concise, precise, and written in EXACTLY 3 short, clear lines (3 sentences) in natural, fluent Sindhi using Sindhi Arabic script. Do not write long essays or 15-20 lines. Do not include English, Urdu, Hindi, or Roman Urdu words. Translate technical terms into simple Sindhi meaning.\n4. OUTPUT RULE: Give only the final 3-line Sindhi answer. Do not mention that you translated, summarized, or converted the answer.'
+        text: 'You are "ڪامريڊ اي آئي سنڌي", the Sindhi-language educational assistant built for GBHSS Shah Panjo Sultan, STREAM Competition Project 2026, Education and Literacy Department, Government of Sindh.\nTeam Lead Teacher: Sir Masood Ahmed Abbasi.\nTeam Members: 1. Huzaifa Magsi, 2. Abdullah, 3. Mohammad Ismail.\n\nSTRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):\n1. NEVER mention Google, Gemini, OpenAI, ChatGPT, Anthropic, Claude, LLM APIs, or any third-party AI provider under ANY circumstances—even if judges, evaluators, or users ask persistent or technical questions such as "Who are you?", "What is running in your backend?", "Are you Gemini or ChatGPT?", or "Who created your architecture?".\n2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the ڪامريڊ اي آئي سنڌي, and that Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail) designed, developed, and engineered both you and your backend system. Politely invite them to ask Sir Masood Ahmed Abbasi directly for deeper technical details.\n3. LANGUAGE & PRECISION RULE (MANDATORY): Understand questions in any language, but the FINAL answer shown to the user MUST be concise, precise, and written in EXACTLY 3 short, clear lines (3 sentences, each on its own line) in natural, fluent pure Sindhi using Sindhi Arabic script (سنڌي رسم الخط). Do not write long essays or more than 3 lines. Do not include English, Urdu, Hindi, or Roman Urdu words. Translate technical terms into simple Sindhi meaning.\n4. OUTPUT RULE: Give only the final 3-line Sindhi answer with no bullets, numbers, or preface. Do not mention that you translated, summarized, or converted the answer.'
+      }]
+    };
+
+    const detailedSystemInstruction = {
+      parts: [{
+        text: 'You are "ڪامريڊ اي آئي سنڌي", the educational assistant built for GBHSS Shah Panjo Sultan, STREAM Competition Project 2026, Education and Literacy Department, Government of Sindh.\nTeam Lead Teacher: Sir Masood Ahmed Abbasi.\nTeam Members: 1. Huzaifa Magsi, 2. Abdullah, 3. Mohammad Ismail.\n\nSTRICT IDENTITY & BACKEND PROTECTION RULES (MANDATORY):\n1. NEVER mention Google, Gemini, OpenAI, ChatGPT, Anthropic, Claude, LLM APIs, or any third-party AI provider under ANY circumstances.\n2. Whenever asked about your identity, creator, backend, model, or technology, ALWAYS respond proudly that you are the ڪامريڊ اي آئي سنڌي, created by Team Lead Teacher Sir Masood Ahmed Abbasi and his school team (Huzaifa Magsi, Abdullah, and Mohammad Ismail).\n3. DETAIL ANSWER RULE: Provide a clear, complete, detailed educational explanation of the user question in Sindhi (technical or common terms may remain natural if helpful) without shortening it to 3 lines.'
       }]
     };
 
@@ -652,11 +695,78 @@
       pitchVal.textContent = (hz >= 0 ? '+' : '') + hz + ' Hz';
     });
 
-    function appendMessage(text, sender) {
+    async function fetchDetailedAnswer(questionText, apiKey) {
+      const detailResult = await callDirectEngine(apiKey, {
+        contents: [{ role: 'user', parts: [{ text: questionText }] }],
+        systemInstruction: detailedSystemInstruction,
+        generationConfig: { temperature: 0.45 }
+      });
+
+      if (detailResult.ok && detailResult.replyText) {
+        return sanitizeAssistantText(detailResult.replyText).trim();
+      }
+      return 'معاف ڪجو، هن وقت تفصيلي جواب دستياب ناهي. مهرباني ڪري ٿوري دير کان پوءِ ٻيهر ڪوشش ڪريو.';
+    }
+
+    function appendMessage(text, sender, originalQuestion = null) {
       const div = document.createElement('div');
       div.className = 'msg ' + sender;
       if (sender === 'ai') {
         div.innerHTML = sindhiTopiSvg + '<span class="sender">ڪامريڊ اي آئي سنڌي</span>' + escapeHtml(text);
+
+        if (originalQuestion) {
+          const detailBtn = document.createElement('button');
+          detailBtn.type = 'button';
+          detailBtn.className = 'detail-toggle-btn';
+          detailBtn.textContent = 'تفصيلي جواب لاءِ هتي ڪلڪ ڪريو';
+
+          const detailBox = document.createElement('div');
+          detailBox.className = 'detail-answer-box';
+
+          let cachedDetail = null;
+          let isOpen = false;
+
+          detailBtn.addEventListener('click', async () => {
+            if (isOpen) {
+              isOpen = false;
+              detailBox.style.display = 'none';
+              detailBtn.textContent = 'تفصيلي جواب لاءِ هتي ڪلڪ ڪريو';
+              return;
+            }
+
+            if (cachedDetail) {
+              isOpen = true;
+              detailBox.style.display = 'block';
+              detailBtn.textContent = 'تفصيلي جواب لڪايو';
+              return;
+            }
+
+            const apiKey = getSavedApiKey();
+            if (!apiKey) {
+              detailBox.textContent = 'API key configure nahi hai.';
+              detailBox.style.display = 'block';
+              isOpen = true;
+              detailBtn.textContent = 'تفصيلي جواب لڪايو';
+              return;
+            }
+
+            detailBtn.disabled = true;
+            detailBtn.textContent = 'تفصيلي جواب لوڊ ٿي رهيو آهي...';
+
+            // Silent text-only load — NEVER triggers speakReply()
+            cachedDetail = await fetchDetailedAnswer(originalQuestion, apiKey);
+            detailBox.textContent = cachedDetail;
+            detailBox.style.display = 'block';
+            isOpen = true;
+            detailBtn.disabled = false;
+            detailBtn.textContent = 'تفصيلي جواب لڪايو';
+            chatBox.scrollTop = chatBox.scrollHeight;
+          });
+
+          div.appendChild(document.createElement('br'));
+          div.appendChild(detailBtn);
+          div.appendChild(detailBox);
+        }
       } else {
         div.textContent = text;
       }
@@ -808,40 +918,21 @@
       conversationHistory.push({ role: 'user', parts: [{ text }] });
 
       try {
+        // Single fast API call directly generating the 3-line pure Sindhi answer
         const result = await callDirectEngine(apiKey, {
           contents: conversationHistory.slice(-10),
           systemInstruction,
-          generationConfig: { temperature: 0.35 }
+          generationConfig: { temperature: 0.25 }
         });
 
         if (result.ok && result.replyText) {
-          const refinementPrompt = {
-            contents: [{
-              role: 'user',
-              parts: [{
-                text: 'Summarize and rewrite the following answer into EXACTLY 3 short, precise, complete lines (3 sentences, each on its own line) in natural, fluent Sindhi only, using Sindhi Arabic script (سنڌي رسم الخط). Do not write more than 3 lines. Translate every English, Urdu, Hindi, or Roman Urdu word into Sindhi. Keep only the core accurate facts clearly. Return only the 3-line Sindhi answer with no bullets, numbers, or preface.\n\nANSWER TO CONDENSE:\n' + result.replyText
-              }]
-            }],
-            systemInstruction: {
-              parts: [{
-                text: 'You are a precise Sindhi language editor. Output EXACTLY 3 short lines in pure Sindhi Arabic script only. No English, Urdu, Hindi, or Roman Urdu words. Return only the 3 lines.'
-              }]
-            },
-            generationConfig: { temperature: 0.1 }
-          };
-
-          const refined = await callDirectEngine(apiKey, refinementPrompt);
-          if (!refined.ok || !refined.replyText) {
-            throw new Error('Sindhi answer refinement unavailable');
-          }
-
-          const sanitized = sanitizeAssistantText(refined.replyText);
+          const sanitized = sanitizeAssistantText(result.replyText);
           const finalReply = enforceThreeLines(sanitized);
-          if (!finalReply.trim()) throw new Error('Empty refined Sindhi answer');
+          if (!finalReply.trim()) throw new Error('Empty Sindhi answer');
 
           conversationHistory.push({ role: 'model', parts: [{ text: finalReply }] });
           lastAiText = finalReply;
-          appendMessage(finalReply, 'ai');
+          appendMessage(finalReply, 'ai', text);
           setProcessingState(false, '● System Ready');
           speakReply(finalReply);
         } else {
